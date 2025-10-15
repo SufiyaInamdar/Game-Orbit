@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Typing Challenge Game</title>
+<style>
+  body{margin:0;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#1e1e2f;color:#fff;font-family:system-ui;}
+  h1{margin-bottom:10px;}
+  #letter{font-size:80px;margin:20px;}
+  .hud{font-size:20px;margin:5px;}
+  input{padding:10px;font-size:20px;width:200px;text-align:center;border-radius:6px;border:none;}
+  button{margin-top:15px;padding:8px 12px;border:none;border-radius:6px;background:#0f76a8;color:#fff;cursor:pointer;}
+</style>
+</head>
+<body>
+<h1>Typing Challenge</h1>
+<div id="letter">A</div>
+<div class="hud">Score: <span id="score">0</span></div>
+<div class="hud">Time Left: <span id="time">30</span>s</div>
+<input type="text" id="input" placeholder="Type here" autofocus>
+<button onclick="resetGame()">Restart</button>
+<script>
+let score=0;
+let currentLetter='';
+let time=30;
+let timer;
+let intervalSpeed=2000; // initial time per letter in ms
+const letters='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+const letterEl=document.getElementById('letter');
+const scoreEl=document.getElementById('score');
+const timeEl=document.getElementById('time');
+const input=document.getElementById('input');
+
+function randomLetter(){return letters[Math.floor(Math.random()*letters.length)];}
+
+function nextLetter(){
+  currentLetter=randomLetter();
+  letterEl.textContent=currentLetter;
+  input.value='';
+}
+
+function startTimer(){
+  clearInterval(timer);
+  timer=setInterval(()=>{
+    time--;
+    timeEl.textContent=time;
+    if(time<=0){
+      clearInterval(timer);
+      alert('Time Up! Score: '+score);
+    }
+  },1000);
+}
+
+function nextWithSpeed(){
+  nextLetter();
+  // reduce interval speed as score increases
+  intervalSpeed = Math.max(500, 2000 - score*50);
+  clearTimeout(window.letterTimeout);
+  window.letterTimeout = setTimeout(nextWithSpeed, intervalSpeed);
+}
+
+input.addEventListener('input',()=>{
+  if(input.value.toUpperCase()===currentLetter){
+    score++;
+    scoreEl.textContent=score;
+    time = Math.min(30,time+1); // small time bonus
+    timeEl.textContent=time;
+    nextLetter();
+  }
+});
+
+function resetGame(){
+  score=0;
+  time=30;
+  scoreEl.textContent=score;
+  timeEl.textContent=time;
+  nextLetter();
+  startTimer();
+  nextWithSpeed();
+  input.focus();
+}
+
+resetGame();
+</script>
+</body>
+</html>
